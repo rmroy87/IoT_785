@@ -75,6 +75,7 @@ public:
   void MotionDetectTaskHandler(void);
   void GetLastMagnitude(short *lastMagnitude, short *maxMagnitude);
   void SetNewEventThershold(short newEventThreshold);
+  void RegisterEventHandler(void (*NewEventHandler)(short));
 };
 
 #endif

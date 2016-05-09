@@ -26,7 +26,7 @@ private:
   uint16_t sensorPin;
   float eventThreshold;
 
-  uint8_t task_initialzed;
+  uint8_t belowThreshold;
   uint8_t temp_data_valid;
   uint8_t temp_state;
   uint8_t type_s;
@@ -40,21 +40,28 @@ private:
   float fahrenheit;
   float tempEventTriggerFahrenheit;
 
+  float lowReport;
+  float highReport;
+
+  void (*TempEventHandler)(float currTemp);
   //
   // Onewire Class object for the DS18B20
-  OneWire *ds;
+  OneWire ds = OneWire((uint16_t) D6);
 
   //
   // Private methods to do the work
   int SendTempConversionStart(void);
   int ReadTempSensor(void);
 
+
 public:
-  TempSensorTask(void);
-  void TempSensorInit(uint16_t pin, float eventThreshold);
+  TempSensorTask( float eventThreshold,
+                  void (*TempThresholdEventHandler)(float));
 
   float GetLastTemp(int mode);
   void TempSensorTaskHandler(void);
+  void RegisterEventHandler(void (*NewEventHandler)(float));
+  void RegisterThreshold(float newEventThreshold);
 };
 
 #endif

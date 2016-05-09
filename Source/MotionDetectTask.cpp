@@ -98,6 +98,13 @@ void MotionDetectTask::SetNewEventThershold(short newEventThreshold)
 }
 
 //
+// Register an EVENT Handler to call when the Threshold is HIT
+void MotionDetectTask::RegisterEventHandler(void (*NewEventHandler)(short))
+{
+  EventThresholdHandler = NewEventHandler;
+}
+
+//
 // Calculate the magnitude of the current acceleration
 // if there is any delta between this reading and the last
 void MotionDetectTask::CalculateMagnitude(void)
