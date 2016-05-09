@@ -1,0 +1,17 @@
+
+{
+    "event": "twilio",
+    "url": "https://api.twilio.com/2010-04-01/Accounts/ACf910ebb537e276a451dc3e01f8ad8375/Messages",
+    "requestType": "POST",
+    "auth": {
+        "username": "ACf910ebb537e276a451dc3e01f8ad8375",
+        "password": "94306718d4098a2dec9f0bf54595f030"
+    },
+    "form": {
+        "From" : "+1 952-649-6346",
+        "To" : "+1 612-859-4160",
+        "Body": "{{SPARK_EVENT_VALUE}}",
+        "MediaUrl" : "https://dl.dropboxusercontent.com/u/10931735/big_spark-mark-400px.png"
+    },
+    "mydevices": true
+}
