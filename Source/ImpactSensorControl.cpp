@@ -7,6 +7,7 @@
 
 // Only include One of the following depending on your environment!
 #include "ImpactSensorControl.h"
+#include "PublishEventTask.h"
 //
 // Event Handler function prototypes
 //
@@ -36,6 +37,7 @@ char *StateMessages[] =
                                              MagnitudeThresholdEventHandler);
 
  extern ImpactSensorCntrol cntrl;
+ extern PublishEventTask   pubEvent;
  //
  // Event Handler that is called when the temperature Threshold
  // has been HIT on the way up, and called again when the
@@ -52,14 +54,9 @@ char *StateMessages[] =
    cntrl.MagnitudeThresholdEventHandler(currMagnitude);
  }
 
-
-
-
-
 /*******************************************************************/
 // Private Class Functions
 /*******************************************************************/
-
 
 //
 // Method to PUSH the next event, if no event return -1
@@ -110,7 +107,8 @@ int ImpactSensorCntrol::PopEvent(uint8_t *nextEvent)
 // console
 void ImpactSensorCntrol::PublishStateTransition(char *nextState)
 {
-    Particle.publish("StateTransition", nextState);
+    //Particle.publish("StateTransition", nextState);
+    pubEvent.PushPublishEvent("StateTransition", nextState);
 }
 
 //
@@ -294,7 +292,7 @@ uint8_t ImpactSensorCntrol::TestSeverImpactCount(void)
 // temperature drops below threshold
 void ImpactSensorCntrol::TempThresholdEventHandler(float currTemp)
 {
-  int ec;
+  int ec = 0;
 
   Serial.print("*** Temp Thershold Hit: ");
   Serial.print(currTemp);
@@ -333,7 +331,8 @@ void ImpactSensorCntrol::MagnitudeThresholdEventHandler(short currMagnitude)
   // Only publish events if we are in an active session
   if(publishImpacts == 1){
     sprintf(tempBuff,"%d", currMagnitude);
-    Particle.publish("librato_impact", tempBuff);
+    //Particle.publish("librato_impact", tempBuff);
+    pubEvent.PushPublishEvent("librato_impact", tempBuff);
 
     //
     // Check to see the level of impact to
@@ -347,7 +346,8 @@ void ImpactSensorCntrol::MagnitudeThresholdEventHandler(short currMagnitude)
     //
     // If the queue is full post an ERROR Msg
     if(ec < 0){
-      Particle.publish("ERROR_LOG", "Event Queue Full - Impact Event");
+      //Particle.publish("ERROR_LOG", "Event Queue Full - Impact Event");
+      pubEvent.PushPublishEvent("ERROR_LOG", "Event Queue Full - Impact Event");
       Serial.print("Event Queue Full - Impact Event");
     }
   }
@@ -376,6 +376,7 @@ void ImpactSensorCntrol::RunImpactSensorControl(void)
   char   tempArray[20];
   float  currTemp;
 
+  pubEvent.PublishEventTaskHandler();
   ts.TempSensorTaskHandler();
   led.LedControlTaskHandler();
   motion.MotionDetectTaskHandler();
@@ -385,7 +386,6 @@ void ImpactSensorCntrol::RunImpactSensorControl(void)
       // Publish the State Change
       PublishStateTransition(StateMessages[currentState]);
       stateChangePending = 0;
-      delay(250);
   }else{
       //
       // Publish the temp every ten seconds
@@ -394,8 +394,8 @@ void ImpactSensorCntrol::RunImpactSensorControl(void)
         currTemp      = ts.GetLastTemp(0);
         lastTickCount = currTickCount;
         sprintf(tempArray,"%f", currTemp);
-        Particle.publish("librato_temp", tempArray);
-        delay(250);
+        //Particle.publish("librato_temp", tempArray);
+        pubEvent.PushPublishEvent("librato_temp", tempArray);
       }
   }
   //
@@ -432,8 +432,8 @@ void ImpactSensorCntrol::RunImpactSensorControl(void)
       //
       // Some state transitions require sepcial handling
       if(nextState == S6_WAIT_FOR_CLEAR){
-        Particle.publish("twilio", "Player Removed - Needs Concusion Protocol to be Administered" );
-        delay(250);
+        //Particle.publish("twilio", "Player Removed - Needs Concusion Protocol to be Administered" );
+        pubEvent.PushPublishEvent("twilio", "Player Removed - Needs Concusion Protocol to be Administered");
       }
   }
 }

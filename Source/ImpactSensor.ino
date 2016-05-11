@@ -27,6 +27,7 @@
 #include "math.h"
 //#include "Particle-OneWire/Particle-OneWire.h"
 #include "ImpactSensorControl.h"
+#include "PublishEventTask.h"
 
 int analogvalue = 0;
 double tempC = 0;
@@ -40,7 +41,8 @@ int RemovePlayerFromCloud(String command);
 // Program Control Data Structure
 //ProgramCntrl progCntrl;
 
-ImpactSensorCntrol cntrl = ImpactSensorCntrol();
+ImpactSensorCntrol cntrl  = ImpactSensorCntrol();
+PublishEventTask pubEvent = PublishEventTask();
 
 int helloWorldFromCloud(String command)
 {
@@ -57,8 +59,9 @@ int ClearPlayerFromCloud(String command)
   Serial.print("*** Command Control - CMD: ");
   Serial.print(command);
   Serial.println(" ***");
-  Particle.publish("MedicalEvent", "Player Cleared to Return");
-  //Particle.publish("twilio", "RED State Hit" );
+
+  pubEvent.PushPublishEvent("MedicalEvent", "Player Cleared to Return");
+
   cntrl.InsertPlayerClearedEvent();
 }
 
@@ -69,8 +72,8 @@ int RemovePlayerFromCloud(String command)
   Serial.print("*** Command Control - CMD: ");
   Serial.print(command);
   Serial.println(" ***");
-  Particle.publish("MedicalEvent", "Player Removed from Play");
-  //Particle.publish("twilio", "RED State Hit" );
+  pubEvent.PushPublishEvent("MedicalEvent", "Player Removed from Play");
+
   cntrl.InsertPlayerOutEvent();
 }
 
